@@ -28,43 +28,34 @@ class FileClient:
         logging.info(f'[FilesAPI] - Initializing operations thread count to: {self.thread_count}')
 
     def get_list(self, include_subtitles: bool = False, calculate_hashes: bool = False) -> FileList:
-        def quick_scandir(dir: str, include_subtitles, calculate_hashes: bool) -> Tuple[ List, List[File] ]:
-            subfolders, files = [], []
-            for item in os.scandir(dir):
-                if item.is_dir():
-                    subfolders.append(item.path)
-                    continue
+        fnames, files = [], []
+        for (dir_path, _, file_names) in os.walk(self.files_dir):
+            for file in file_names:
+                fnames.append( os.path.join(dir_path, file) )
 
-                if item.is_file():
-                    _, file_ext = os.path.splitext(item.path)
-                    file_mime   = None
-                    try:
-                        file_mime = magic.from_file(item.path, mime = True)
-                    except PermissionError as e:
-                        pass
+        for file in fnames:
+            _, file_ext = os.path.splitext(file)
+            file_mime   = None
+            try:
+                file_mime = magic.from_file(file, mime = True)
+            except PermissionError as e:
+                pass
 
-                    # Ref. https://support.plex.tv/articles/200471133-adding-local-subtitles-to-your-media/#toc-1
-                    if not ( ( file_mime and file_mime.startswith('video') ) or \
-                       (include_subtitles and file_ext and file_ext in ['.srt', '.smi', '.ssa', '.ass', '.vtt']) ):
-                        continue
+            # Ref. https://support.plex.tv/articles/200471133-adding-local-subtitles-to-your-media/#toc-1
+            if not ( ( file_mime and file_mime.startswith('video') ) or \
+                (include_subtitles and file_ext and file_ext in ['.srt', '.smi', '.ssa', '.ass', '.vtt']) ):
+                continue
 
-                    files.append( File(
-                        name      = os.path.basename(item.path),
-                        path      = os.path.dirname(item.path),
-                        size      = os.path.getsize(item.path),
-                        hash      = get_file_hash(item.path, self.block_size) if calculate_hashes else None,
-                        mod_date  = dateparser.parse( str( os.path.getmtime(item.path) ) ),
-                        mime_type = file_mime
-                    ) )
+            files.append( File(
+                name      = os.path.basename(file),
+                path      = os.path.dirname(file),
+                size      = os.path.getsize(file),
+                hash      = get_file_hash(file, self.block_size) if calculate_hashes else None,
+                mod_date  = dateparser.parse( str( os.path.getmtime(file) ) ),
+                mime_type = file_mime
+            ) )
 
-            for folder in subfolders:
-                sf, f = quick_scandir(folder, include_subtitles, calculate_hashes)
-                subfolders.extend(sf)
-                files.extend(f)
-
-            return subfolders, files
-
-        return {"files": quick_scandir(self.files_dir, include_subtitles, calculate_hashes)[1]}
+        return {"files": files}
 
     def do_rename(self, files: List[RenameRequest]) -> RenameResponseList:
         def chunk_rename(files: List[RenameRequest]) -> List[RenameResponse]:
