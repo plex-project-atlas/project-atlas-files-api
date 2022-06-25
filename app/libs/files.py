@@ -4,24 +4,20 @@ import shutil
 import logging
 import dateparser
 
-from typing             import Tuple, List
-from pydantic           import DirectoryPath, ByteSize
-from pydantic.tools     import parse_obj_as
-from libs.utils         import do_ops_preflight_checks, get_file_hash
+from typing             import List
+from libs.utils         import Settings, do_ops_preflight_checks, get_file_hash
 from libs.models        import File, FileList, RenameRequest, RenameResponse, \
                                RenameResponseList, MoveRequest, MoveResponse, MoveResponseList
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 
 
 class FileClient:
-    def __init__(self):
-        self.block_size = parse_obj_as( ByteSize, os.environ.get('FILES_API_BLOCK_SIZE', '128 MiB') )
+    def __init__(self, api_settings: Settings):
+        self.block_size   = api_settings.block_size
         logging.info(f'[FilesAPI] - Initializing block size to: {self.block_size.human_readable()}')
-        self.files_dir = parse_obj_as( DirectoryPath, os.environ.get('FILES_API_FILES_DIR', '/files') )
-        logging.info(f'[FilesAPI] - Initializing files directory to: {self.files_dir}')
-        self.library_dir = parse_obj_as( DirectoryPath, os.environ.get('FILES_API_LIBRARY_DIR', '/library') )
-        logging.info(f'[FilesAPI] - Initializing library directory to: {self.library_dir}')
-        self.thread_count = int( os.environ.get( 'FILES_API_THREAD_COUNT', os.cpu_count() ) )
+        self.files_dir    = api_settings.files_dir
+        logging.info(f'[FilesAPI] - Initializing files directory to: {os.path.join(self.files_dir, "")}')
+        self.thread_count = api_settings.thread_count
         if not self.thread_count:
             logging.warn('[FilesAPI] - Unable to detect CPU thread count')
             self.thread_count = 2

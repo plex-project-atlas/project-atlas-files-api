@@ -3,8 +3,18 @@ import hashlib
 import logging
 import dateparser
 
-from pydantic        import FilePath
+from pydantic        import BaseSettings, DirectoryPath, FilePath, ByteSize
 from libs.models     import MoveRequest, RenameRequest, OpsPrefightCheckResult
+
+
+class Settings(BaseSettings):
+    block_size:   ByteSize      = '128 MiB'
+    files_dir:    DirectoryPath = '/files'
+    thread_count: int           = os.cpu_count()
+
+    class Config:
+        env_prefix     = "FILES_API_"
+        case_sensitive = False
 
 
 def get_file_hash(file: FilePath, block_size: int) -> str | None:

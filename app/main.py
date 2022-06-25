@@ -5,8 +5,10 @@ import warnings
 
 from uvicorn            import Config, Server
 from fastapi            import FastAPI
+from functools          import lru_cache
 from libs.logging       import LOG_LEVEL, setup_logging
 from libs.files         import FileClient
+from libs.utils         import Settings
 from routers            import files
 from starlette.requests import Request
 from starlette.status   import HTTP_200_OK, \
@@ -14,6 +16,10 @@ from starlette.status   import HTTP_200_OK, \
 
 
 clients = {}
+
+@lru_cache()
+def get_api_settings() -> Settings:
+    return Settings()
 
 
 app = FastAPI(
@@ -27,9 +33,9 @@ app = FastAPI(
 
 
 @app.on_event('startup')
-async def instantiate_clients():
+async def instantiate_clients( api_settings: Settings = get_api_settings() ):
     logging.info('[FilesAPI] - Initializing File client...')
-    clients['files']  = FileClient()
+    clients['files']  = FileClient(api_settings)
 
 @app.middleware('http')
 async def add_global_vars(request: Request, call_next):
