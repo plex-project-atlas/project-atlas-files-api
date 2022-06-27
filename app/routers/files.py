@@ -18,7 +18,7 @@ def get_file_client(request: Request) -> FileClient:
     summary        = 'Returns a list of the video/subs files in the root directory',
     response_model = FileList
 )
-def list(
+def get_list(
     subtitles: bool = Query(
         default     = False,
         title       = 'Subtitles',
@@ -42,7 +42,7 @@ def list(
     summary        = 'Rename a list of files with optional checks (date, hash) without moving them',
     response_model = RenameResponseList
 )
-def rename(
+def do_rename(
     renames:     RenameRequestList,
     file_client: FileClient = Depends(get_file_client)
 ) -> RenameResponseList:
@@ -57,7 +57,7 @@ def rename(
     summary        = 'Move a list of files with optional checks (date, hash) without renaming them',
     response_model = MoveResponseList
 )
-def move(
+def do_move(
     renames:     MoveRequestList,
     file_client: FileClient = Depends(get_file_client)
 ) -> MoveResponseList:
