@@ -1,11 +1,17 @@
-from   fastapi             import APIRouter, Path, Query
-from   typing              import Any, List, Dict
-from   libs.models         import FileList, MoveRequestList, MoveResponseList, RenameRequestList, RenameResponseList
-from   starlette.requests  import Request
+from libs.files         import FileClient
+from fastapi            import APIRouter, Request, Query, Depends
+from libs.models        import FileList, MoveRequestList, MoveResponseList, RenameRequestList, RenameResponseList
 
 
 router = APIRouter()
 
+
+# -- Singleton Services --
+
+def get_file_client(request: Request) -> FileClient:
+    return request.app.state.file_client
+
+# -- Router paths
 
 @router.get(
     '/list',
@@ -13,22 +19,22 @@ router = APIRouter()
     response_model = FileList
 )
 def list(
-    request:           Request,
     subtitles: bool = Query(
         default     = False,
         title       = 'Subtitles',
         description = 'Specify whenever to include subtitles files or not'
     ),
-    hashes:  bool = Query(
+    hashes:    bool = Query(
         default     = False,
         title       = 'Hashes',
         description = 'Specify whenever to calculate file hashes (Blake2S) or not'
-    )
-):
+    ),
+    file_client: FileClient = Depends(get_file_client)
+) -> FileList:
     """
     Search for all video/subtitles files in [FILES_DIR] and returns them as a list.
     """
-    return request.state.files.get_list(include_subtitles = subtitles, calculate_hashes = hashes)
+    return file_client.get_list(include_subtitles = subtitles, calculate_hashes = hashes)
 
 
 @router.patch(
@@ -37,13 +43,13 @@ def list(
     response_model = RenameResponseList
 )
 def rename(
-    request: Request,
-    renames: RenameRequestList
-):
+    renames:     RenameRequestList,
+    file_client: FileClient = Depends(get_file_client)
+) -> RenameResponseList:
     """
     In-place renaming of a provided list of files with optional checks (date, hash).
     """
-    return request.state.files.do_rename(renames.files)
+    return file_client.do_rename(renames.files)
 
 
 @router.patch(
@@ -52,10 +58,10 @@ def rename(
     response_model = MoveResponseList
 )
 def move(
-    request: Request,
-    renames: MoveRequestList
-):
+    renames:     MoveRequestList,
+    file_client: FileClient = Depends(get_file_client)
+) -> MoveResponseList:
     """
     In-place moving of a provided list of files with optional checks (date, hash).
     """
-    return request.state.files.do_move(renames.files)
+    return file_client.do_move(renames.files)

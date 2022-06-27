@@ -5,14 +5,19 @@ import logging
 import dateparser
 
 from typing             import List
+from functools          import lru_cache
 from libs.utils         import Settings, do_ops_preflight_checks, get_file_hash
 from libs.models        import File, FileList, RenameRequest, RenameResponse, \
                                RenameResponseList, MoveRequest, MoveResponse, MoveResponseList
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 
 
+@lru_cache()
+def get_api_settings() -> Settings:
+    return Settings()
+
 class FileClient:
-    def __init__(self, api_settings: Settings):
+    def __init__( self, api_settings: Settings = get_api_settings() ):
         self.block_size   = api_settings.block_size
         logging.info(f'[FilesAPI] - Initializing block size to: {self.block_size.human_readable()}')
         self.files_dir    = api_settings.files_dir

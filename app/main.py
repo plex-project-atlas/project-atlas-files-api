@@ -4,22 +4,11 @@ import logging
 import warnings
 
 from uvicorn            import Config, Server
-from fastapi            import FastAPI
-from functools          import lru_cache
+from fastapi            import FastAPI, Request
 from libs.logging       import LOG_LEVEL, setup_logging
 from libs.files         import FileClient
-from libs.utils         import Settings
 from routers            import files
-from starlette.requests import Request
-from starlette.status   import HTTP_200_OK, \
-                               HTTP_511_NETWORK_AUTHENTICATION_REQUIRED
-
-
-clients = {}
-
-@lru_cache()
-def get_api_settings() -> Settings:
-    return Settings()
+from starlette.status   import HTTP_200_OK
 
 
 app = FastAPI(
@@ -32,26 +21,26 @@ app = FastAPI(
 )
 
 
+# -- Main App --
+
 @app.on_event('startup')
-async def instantiate_clients( api_settings: Settings = get_api_settings() ):
+async def instantiate_clients():
     logging.info('[FilesAPI] - Initializing File client...')
-    clients['files']  = FileClient(api_settings)
+    app.state.file_client = FileClient()
 
 @app.middleware('http')
 async def add_global_vars(request: Request, call_next):
-    request.state.files = clients['files']
-
     start_time = time.time()
     response = await call_next(request)
-    logging.info( '[FilesAPI] - The request was completed in: %ss', '{:.2f}'.format(time.time() - start_time) )
+    logging.info(f'[FilesAPI] - The request was completed in: {(time.time() - start_time):.2f}s')
     return response
 
 
 # import the /files branch of FilesAPI
 app.include_router(
     files.router,
-    prefix    = '/files',
-    tags      = ['files'],
+    prefix       = '/files',
+    tags         = ['files'],
     responses = {
         HTTP_200_OK: {}
     }
