@@ -3,10 +3,10 @@ import pytest
 import requests
 
 from fastapi.testclient import TestClient
-from app.main           import app
-from app.libs.files     import FileClient
-from app.libs.models    import FileList, RenameResponseList, MoveResponseList
-from app.libs.utils     import ActionMessages
+from main               import app
+from libs.files         import FileClient
+from libs.models        import FileList, RenameResponseList, MoveResponseList
+from libs.utils         import ActionMessages
 from routers.files      import get_file_client
 from datetime           import datetime
 from pathlib            import Path
@@ -130,14 +130,14 @@ def test_get_list_with_subs_and_hashes(create_dummy_files_structure):
 
 # -- /files/rename --
 
-def test_do_rename_wrong_name(create_dummy_files_structure):
+def test_do_rename_wrong_name(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/rename',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_3gp.3gp",
-                    "path":     "test-files",
+                    "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
                     "new_name": "sample_3gp.3gp"
                 }
             ]
@@ -150,14 +150,14 @@ def test_do_rename_wrong_name(create_dummy_files_structure):
     assert bool(response["files"][0]["renamed"]) == False
     assert response["files"][0]["detail"] == ActionMessages.ERROR_SAME_NAME
 
-def test_do_rename_wrong_size(create_dummy_files_structure):
+def test_do_rename_wrong_size(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/rename',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_3gp.3gp",
-                    "path":     "test-files",
+                    "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
                     "size":     8,
                     "new_name": "new_sample.3gp"
                 }
@@ -171,14 +171,14 @@ def test_do_rename_wrong_size(create_dummy_files_structure):
     assert bool(response["files"][0]["renamed"]) == False
     assert ActionMessages.ERROR_SIZE_MISMATCH in response["files"][0]["detail"]
 
-def test_do_rename_wrong_hash(create_dummy_files_structure):
+def test_do_rename_wrong_hash(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/rename',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_3gp.3gp",
-                    "path":     "test-files",
+                    "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
                     "hash":     "my_wrong_hash",
                     "new_name": "new_sample.3gp"
                 }
@@ -192,14 +192,14 @@ def test_do_rename_wrong_hash(create_dummy_files_structure):
     assert bool(response["files"][0]["renamed"]) == False
     assert response["files"][0]["detail"] == ActionMessages.ERROR_HASH_MISMATCH
 
-def test_do_rename_wrong_date(create_dummy_files_structure):
+def test_do_rename_wrong_date(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/rename',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_3gp.3gp",
-                    "path":     "test-files",
+                    "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
                     "mod_date": datetime.now().isoformat(),
                     "new_name": "new_sample.3gp"
                 }
@@ -213,14 +213,14 @@ def test_do_rename_wrong_date(create_dummy_files_structure):
     assert bool(response["files"][0]["renamed"]) == False
     assert ActionMessages.ERROR_DATE_MISMATCH in response["files"][0]["detail"]
 
-def test_do_rename_correct(create_dummy_files_structure):
+def test_do_rename_correct(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/rename',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_3gp.3gp",
-                    "path":     "test-files",
+                    "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
                     "new_name": "new_sample.3gp"
                 }
             ]
@@ -234,15 +234,15 @@ def test_do_rename_correct(create_dummy_files_structure):
 
 # -- /files/move --
 
-def test_do_move_wrong_path(create_dummy_files_structure):
+def test_do_move_wrong_path(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/move',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_mkv.mkv",
-                    "path":     "test-files/sample-dir1/sample-subdir1",
-                    "new_path": "test-files/sample-dir1/sample-subdir1"
+                    "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
+                    "new_path": f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1"
                 }
             ]
         }
@@ -254,16 +254,16 @@ def test_do_move_wrong_path(create_dummy_files_structure):
     assert bool(response["files"][0]["moved"]) == False
     assert response["files"][0]["detail"] == ActionMessages.ERROR_SAME_PATH
 
-def test_do_move_wrong_size(create_dummy_files_structure):
+def test_do_move_wrong_size(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/move',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_mkv.mkv",
-                    "path":     "test-files/sample-dir1/sample-subdir1",
+                    "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
                     "size":     8,
-                    "new_path": "test-files"
+                    "new_path": os.path.normpath( tmp_path_factory.getbasetemp() )
                 }
             ]
         }
@@ -275,16 +275,16 @@ def test_do_move_wrong_size(create_dummy_files_structure):
     assert bool(response["files"][0]["moved"]) == False
     assert ActionMessages.ERROR_SIZE_MISMATCH in response["files"][0]["detail"]
 
-def test_do_move_wrong_hash(create_dummy_files_structure):
+def test_do_move_wrong_hash(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/move',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_mkv.mkv",
-                    "path":     "test-files/sample-dir1/sample-subdir1",
+                    "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
                     "hash":     "my_wrong_hash",
-                    "new_path": "test-files"
+                    "new_path": os.path.normpath( tmp_path_factory.getbasetemp() )
                 }
             ]
         }
@@ -296,16 +296,16 @@ def test_do_move_wrong_hash(create_dummy_files_structure):
     assert bool(response["files"][0]["moved"]) == False
     assert response["files"][0]["detail"] == ActionMessages.ERROR_HASH_MISMATCH
 
-def test_do_move_wrong_date(create_dummy_files_structure):
+def test_do_move_wrong_date(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/move',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_mkv.mkv",
-                    "path":     "test-files/sample-dir1/sample-subdir1",
+                    "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
                     "mod_date": datetime.now().isoformat(),
-                    "new_path": "test-files"
+                    "new_path": os.path.normpath( tmp_path_factory.getbasetemp() )
                 }
             ]
         }
@@ -317,15 +317,15 @@ def test_do_move_wrong_date(create_dummy_files_structure):
     assert bool(response["files"][0]["moved"]) == False
     assert ActionMessages.ERROR_DATE_MISMATCH in response["files"][0]["detail"]
 
-def test_do_move_correct(create_dummy_files_structure):
+def test_do_move_correct(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
     response = client.patch(url = '/files/move',
         headers = api_headers,
         json    = {
             "files": [
                 {
                     "name":     "sample_mkv.mkv",
-                    "path":     "test-files/sample-dir1/sample-subdir1",
-                    "new_path": "test-files"
+                    "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
+                    "new_path": os.path.normpath( tmp_path_factory.getbasetemp() )
                 }
             ]
         }

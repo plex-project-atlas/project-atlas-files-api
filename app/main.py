@@ -58,6 +58,8 @@ if __name__ == '__main__':
         "main:app",
         host      = os.environ.get('UVICORN_HOST', '0.0.0.0'),
         port      = int( os.environ.get('UVICORN_PORT', '8080') ),
+        factory   = True,
+        workers   = 1,
         log_level = LOG_LEVEL,
     ) )
 
