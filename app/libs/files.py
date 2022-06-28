@@ -24,7 +24,7 @@ class FileClient:
         logging.info(f'[FilesAPI] - Initializing files directory to: {os.path.join(self.files_dir, "")}')
         self.thread_count = api_settings.thread_count
         if not self.thread_count:
-            logging.warn('[FilesAPI] - Unable to detect CPU thread count')
+            logging.warning('[FilesAPI] - Unable to detect CPU thread count')
             self.thread_count = 2
         logging.info(f'[FilesAPI] - Initializing operations thread count to: {self.thread_count}')
 
@@ -71,7 +71,7 @@ class FileClient:
                     except (FileNotFoundError, PermissionError) as e:
                         ops_precheck.result = False,
                         ops_precheck.detail = f'{e.strerror}'
-                        logging.warn(f'[FilesAPI] - Unable to rename "{src_file}" into "{dst_file}": {ops_precheck.detail}')
+                        logging.warning(f'[FilesAPI] - Unable to rename "{src_file}" into "{dst_file}": {ops_precheck.detail}')
 
                 outcomes.append( RenameResponse(
                     renamed = ops_precheck.result,
@@ -100,7 +100,7 @@ class FileClient:
                 except (FileNotFoundError, PermissionError) as e:
                     ops_precheck.result = False
                     ops_precheck.detail = f'{e.strerror}'
-                    logging.warn(f'[FilesAPI] - Unable to move "{src_file}" into "{file.new_path}": {ops_precheck.detail}')
+                    logging.warning(f'[FilesAPI] - Unable to move "{src_file}" into "{file.new_path}": {ops_precheck.detail}')
 
             outcomes.append( MoveResponse(
                 moved  = ops_precheck.result,

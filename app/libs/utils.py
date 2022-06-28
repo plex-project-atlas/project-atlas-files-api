@@ -53,18 +53,18 @@ def do_ops_preflight_checks(file: RenameRequest | MoveRequest, block_size: int) 
     elif not ( file_hash := get_file_hash(src_file, block_size) ):
         result.result = False
         result.detail = ActionMessages.ERROR_NO_ACCESS
-        logging.warn(f'[FilesAPI] - "{src_file}": {result.detail}')
-    elif ( file_size := os.path.getsize(src_file) ) != file.size:
+        logging.warning(f'[FilesAPI] - "{src_file}": {result.detail}')
+    elif file.size and ( file_size := os.path.getsize(src_file) ) != file.size:
         result.result = False
-        result.detail = f'{ActionMessages.ERROR_SIZE_MISMATCH} (Delta: {abs(file_size - file.size)})'
-        logging.warn(f'[FilesAPI] - "{src_file}": {result.detail}')
+        result.detail = f'{ActionMessages.ERROR_SIZE_MISMATCH} (Delta: {abs(file_size - file.size)} bytes)'
+        logging.warning(f'[FilesAPI] - "{src_file}": {result.detail}')
     elif file.hash and file_hash != file.hash:
         result.result = False
         result.detail = ActionMessages.ERROR_HASH_MISMATCH
-        logging.warn(f'[FilesAPI] - "{src_file}": {result.detail}')
+        logging.warning(f'[FilesAPI] - "{src_file}": {result.detail}')
     elif file.mod_date and ( file_mod_date := dateparser.parse( str( os.path.getmtime(src_file) ) ) ) != file.mod_date:
         result.result = False
         result.detail = f'{ActionMessages.ERROR_DATE_MISMATCH} (Delta: {file_mod_date - file.mod_date})'
-        logging.warn(f'[FilesAPI] - "{src_file}": {result.detail}')
+        logging.warning(f'[FilesAPI] - "{src_file}": {result.detail}')
 
     return result
