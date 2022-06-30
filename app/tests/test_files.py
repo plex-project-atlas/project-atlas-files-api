@@ -2,21 +2,14 @@ import os
 import pytest
 import requests
 
-from fastapi.testclient import TestClient
-from main               import app
-from libs.files         import FileClient
-from libs.models        import FileList, RenameResponseList, MoveResponseList
-from libs.utils         import ActionMessages
-from routers.files      import get_file_client
-from datetime           import datetime
-from pathlib            import Path
-from starlette.status   import HTTP_200_OK
+from   test_main          import client, api_headers
+from   libs.models        import FileList, RenameResponseList, MoveResponseList
+from   libs.utils         import ActionMessages
+from   datetime           import datetime
+from   pathlib            import Path
+from   starlette.status   import HTTP_200_OK
 
-client       = TestClient(app)
-api_headers  = {
-    "Accept":       "application/json",
-    "Content-Type": "application/json"
-}
+
 sample_files = {
     "sample_3gp": {
         "source": "https://www.sample-videos.com/video123/3gp/144/big_buck_bunny_144p_1mb.3gp",
@@ -50,13 +43,6 @@ sample_files = {
     }
 }
 
-
-# -- Dependencies override --
-
-def get_test_file_client() -> FileClient:
-    return FileClient()
-
-app.dependency_overrides[get_file_client] = get_test_file_client
 
 ## -- Test functions --
 

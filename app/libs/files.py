@@ -5,16 +5,11 @@ import logging
 import dateparser
 
 from typing             import List
-from functools          import lru_cache
-from libs.utils         import Settings, do_ops_preflight_checks, get_file_hash
+from libs.utils         import Settings, get_api_settings, do_ops_preflight_checks, get_file_hash
 from libs.models        import File, FileList, RenameRequest, RenameResponse, \
                                RenameResponseList, MoveRequest, MoveResponse, MoveResponseList
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 
-
-@lru_cache()
-def get_api_settings() -> Settings:
-    return Settings()
 
 class FileClient:
     def __init__( self, api_settings: Settings = get_api_settings() ):

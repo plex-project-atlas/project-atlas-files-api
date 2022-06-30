@@ -4,11 +4,13 @@ import logging
 import warnings
 
 from uvicorn            import Config, Server
-from fastapi            import FastAPI, Request
+from fastapi            import FastAPI, Request, Depends
+from routers            import files
 from libs.logging       import LOG_LEVEL, setup_logging
 from libs.files         import FileClient
-from routers            import files
-from starlette.status   import HTTP_200_OK
+from libs.security      import JWTBearer, get_jwtoken
+from libs.models        import TokenRequest, TokenResponse
+from starlette.status   import HTTP_201_CREATED, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 
 app = FastAPI(
@@ -35,14 +37,29 @@ async def add_global_vars(request: Request, call_next):
     logging.info(f'[FilesAPI] - The request was completed in: {(time.time() - start_time):.2f}s')
     return response
 
+# JWT authentication
+@app.post(
+    path           = '/token',
+    summary        = "New API Token",
+    description    = "Request for a new JWT to authenticate API calls",
+    response_model = TokenResponse,
+    status_code    = HTTP_201_CREATED,
+    responses      = {
+        HTTP_403_FORBIDDEN: {"description": "Invalid requestor"}
+    }
+)
+def get_token(request: TokenRequest):
+    return get_jwtoken(request)
 
 # import the /files branch of FilesAPI
 app.include_router(
     files.router,
     prefix       = '/files',
     tags         = ['files'],
+    dependencies = [Depends( JWTBearer() )],
     responses = {
-        HTTP_200_OK: {}
+        HTTP_401_UNAUTHORIZED: {"description": "Unauthorized"},
+        HTTP_403_FORBIDDEN:    {"description": "Unauthenticated"}
     }
 )
 
@@ -58,7 +75,7 @@ if __name__ == '__main__':
         "main:app",
         host      = os.environ.get('UVICORN_HOST', '0.0.0.0'),
         port      = int( os.environ.get('UVICORN_PORT', '8080') ),
-        factory   = True,
+        factory   = False,
         workers   = 1,
         log_level = LOG_LEVEL,
     ) )

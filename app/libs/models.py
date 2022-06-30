@@ -1,8 +1,15 @@
-from pydantic import BaseModel, FilePath, ByteSize
+from pydantic import BaseModel, ByteSize
 from datetime import datetime
 from typing   import List
 from pathlib  import Path
 
+
+class TokenRequest(BaseModel):
+    source_platform: str
+    source_id:       str
+
+class TokenResponse(BaseModel):
+    token: str
 
 class OpsPrefightCheckResult(BaseModel):
     result: bool

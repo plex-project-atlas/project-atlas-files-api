@@ -4,6 +4,8 @@ import logging
 import dateparser
 
 from   enum        import Enum
+from   functools   import lru_cache
+from   typing      import List
 from   pydantic    import BaseSettings, DirectoryPath, FilePath, ByteSize
 from   libs.models import MoveRequest, RenameRequest, OpsPrefightCheckResult
 
@@ -19,12 +21,21 @@ class ActionMessages(str, Enum):
 class Settings(BaseSettings):
     block_size:   ByteSize      = '128 MiB'
     files_dir:    DirectoryPath = '/files'
+    library_dir:  DirectoryPath = '/archive'
+    allowed_aud:  List[str]     = None
+    allowed_sub:  List[str]     = None
+    private_jwk:  str           = None
+    public_jwk:   str           = None
     thread_count: int           = os.cpu_count()
 
     class Config:
         env_prefix     = "FILES_API_"
         case_sensitive = False
 
+
+@lru_cache()
+def get_api_settings() -> Settings:
+    return Settings()
 
 def get_file_hash(file: FilePath, block_size: int) -> str | None:
     try:

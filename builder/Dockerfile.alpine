@@ -1,0 +1,18 @@
+FROM python:3.10-alpine3.16
+
+# OS python libs requirements
+RUN  apk add --no-cache build-base libmagic
+
+# Python requirements
+RUN  mkdir -p /app /files /archive /tmp/pytest
+COPY ./builder/requirements.txt /app/requirements.txt
+RUN  python -m pip install --no-cache-dir --upgrade pip
+RUN  pip install --no-cache-dir --upgrade --requirements /app/requirements.txt
+
+# Application code
+COPY    ./app /app
+WORKDIR /app
+
+# Run app
+ENV  TZ=UTC
+CMD  ["python", "main.py"]
