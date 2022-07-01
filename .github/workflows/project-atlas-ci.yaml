@@ -5,9 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: python:3.10-slim-bullseye
-    defaults:
-      run:
-        working-directory: /workspace
+    # defaults:
+    #   run:
+    #     working-directory: /workspace
     steps:
       - name: Checkout commit code
         uses: actions/checkout@v3
