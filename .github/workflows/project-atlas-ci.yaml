@@ -14,15 +14,17 @@ jobs:
       - name: Checkout commit code
         uses: actions/checkout@v3
       - name: Check container version
-        run: cat /etc/*-release
-        run: pwd
+        run: |
+          cat /etc/*-release
+          pwd
       - name: Create test directories
         run: mkdir -p /tmp/pytest
       - name: Install OS prerequisites
         run: apt-get update && apt-get install -y --no-install-recommends libmagic1
       - name: Update PIP and install python packages
-        run: python -m pip install --no-cache-dir --upgrade pip
-        run: pip install --no-cache-dir --upgrade -r builder/requirements.txt
+        run: |
+          python -m pip install --no-cache-dir --upgrade pip
+          pip install --no-cache-dir --upgrade -r builder/requirements.txt
       - name: Run unit tests
         working-directory: ./app
         run: pytest -v --basetemp /tmp/pytest
