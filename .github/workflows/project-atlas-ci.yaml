@@ -29,7 +29,7 @@ jobs:
 
   # build, tag and push docker image
   docker-build-image-debian:
-    needs: run-unit-tests
+    needs: python-code-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout commit code
@@ -38,7 +38,7 @@ jobs:
         run:  docker build -f builder/Dockerfile.debian .
 
   docker-build-image-alpine:
-    needs: run-unit-tests
+    needs: python-code-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout commit code
