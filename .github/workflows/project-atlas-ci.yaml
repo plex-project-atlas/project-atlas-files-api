@@ -11,7 +11,7 @@ jobs:
       - name: Checkout commit code
         uses: actions/checkout@v3
       - name: Install OS prerequisites
-        run:  apt-get update && apt-get install -y --no-install-recommends libmagic1
+        run:  sudo apt-get update && sudo apt-get install -y --no-install-recommends libmagic1
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
