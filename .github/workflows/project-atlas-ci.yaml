@@ -1,29 +1,47 @@
 name: project-atlas-ci
 on: [push]
 jobs:
-  run-unit-tests:
+  # python unit tests
+  python-code-test:
     runs-on: ubuntu-latest
-    container:
-      image: python:3.10-slim-bullseye
-    # defaults:
-    #   run:
-    #     working-directory: /workspace
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11-dev"]
     steps:
       - name: Checkout commit code
         uses: actions/checkout@v3
-      - name: Check container version
-        run: |
-          cat /etc/*-release
-          pwd
-          ls -lsh
-      - name: Create test directories
-        run: mkdir -p /tmp/pytest
       - name: Install OS prerequisites
-        run: apt-get update && apt-get install -y --no-install-recommends libmagic1
-      - name: Update PIP and install python packages
-        run: |
+        run:  apt-get update && apt-get install -y --no-install-recommends libmagic1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Create test directories
+        run:  mkdir -p /tmp/pytest
+      - name: Install python dependencies
+        run:  |
           python -m pip install --no-cache-dir --upgrade pip
-          pip install --no-cache-dir --upgrade -r builder/requirements.txt
+          pip install --no-cache-dir --upgrade -r builder/requirements-api.txt
+          pip install --no-cache-dir --upgrade -r builder/requirements-tests.txt
       - name: Run unit tests
         working-directory: ./app
-        run: pytest -v --basetemp /tmp/pytest
+        run:  pytest -v --basetemp /tmp/pytest
+
+  # build, tag and push docker image
+  docker-build-image-debian:
+    needs: run-unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout commit code
+        uses: actions/checkout@v3
+      - name: Build docker image
+        run:  docker build -f builder/Dockerfile.debian .
+
+  docker-build-image-alpine:
+    needs: run-unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout commit code
+        uses: actions/checkout@v3
+      - name: Build docker image
+        run:  docker build -f builder/Dockerfile.alpine .
