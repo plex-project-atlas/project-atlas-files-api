@@ -38,10 +38,6 @@ jobs:
     steps:
       - name: Checking-out commit code...
         uses: actions/checkout@v3
-      - name: Extracting commit branch...
-        shell: bash
-        run:   echo "##[set-output name=branch;]${GITHUB_REF#refs/heads/}"
-        id:    extract-branch
       - name: Logging-in to DockerHub...
         uses: docker/login-action@v2
         with:
@@ -53,7 +49,7 @@ jobs:
           no-cache: true
           file: builder/Dockerfile.debian
           tags: >
-            ${{ github.repository }}:${{ steps.extract_branch.outputs.branch }}
+            ${{ github.repository }}:devel
           push: false
 
   docker-build-image-alpine:
@@ -63,10 +59,6 @@ jobs:
     steps:
       - name: Checking-out commit code...
         uses: actions/checkout@v3
-      - name: Extracting commit branch...
-        shell: bash
-        run:   echo "##[set-output name=branch;]${GITHUB_REF#refs/heads/}"
-        id:    extract-branch
       - name: Logging-in to DockerHub...
         uses: docker/login-action@v2
         with:
@@ -78,5 +70,5 @@ jobs:
           no-cache: true
           file: builder/Dockerfile.alpine
           tags: >
-            ${{ github.repository }}:${{ steps.extract_branch.outputs.branch }}
+            ${{ github.repository }}:devel
           push: false
