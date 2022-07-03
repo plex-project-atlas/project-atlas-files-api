@@ -6,7 +6,7 @@ RUN  apt-get update && apt-get install -y --no-install-recommends \
      && rm -rf /var/lib/apt/lists/*
 
 # Python requirements
-RUN  mkdir -p /app /files /archive /tmp/pytest
+RUN  mkdir -p /app /files /archive
 COPY ./builder/requirements-api.txt /app/requirements.txt
 RUN  python -m pip install --no-cache-dir --upgrade pip
 RUN  pip install --no-cache-dir --upgrade --requirement /app/requirements.txt

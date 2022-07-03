@@ -4,7 +4,7 @@ FROM python:3.10-alpine3.16
 RUN  apk add --no-cache build-base libmagic
 
 # Python requirements
-RUN  mkdir -p /app /files /archive /tmp/pytest
+RUN  mkdir -p /app /files /archive
 COPY ./builder/requirements-api.txt /app/requirements.txt
 RUN  python -m pip install --no-cache-dir --upgrade pip
 RUN  pip install --no-cache-dir --upgrade --requirement /app/requirements.txt

@@ -21,7 +21,7 @@ class ActionMessages(str, Enum):
 class Settings(BaseSettings):
     block_size:   ByteSize      = '128 MiB'
     files_dir:    DirectoryPath = '/files'
-    library_dir:  DirectoryPath = '/archive'
+    archive_dir:  DirectoryPath = '/archive'
     allowed_aud:  List[str]     = None
     allowed_sub:  List[str]     = None
     private_jwk:  str           = None
