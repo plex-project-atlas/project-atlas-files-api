@@ -52,5 +52,5 @@ jobs:
           no-cache: true
           file: builder/Dockerfile.${{ matrix.os }}
           tags: >
-            ${{ github.event.repository.name }}:${{ github.ref_name }}-${{ matrix.os }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ matrix.os }}
           push: true
