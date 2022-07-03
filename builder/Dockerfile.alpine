@@ -7,7 +7,7 @@ RUN  apk add --no-cache build-base libmagic
 RUN  mkdir -p /app /files /archive /tmp/pytest
 COPY ./builder/requirements-api.txt /app/requirements.txt
 RUN  python -m pip install --no-cache-dir --upgrade pip
-RUN  pip install --no-cache-dir --upgrade --requirements /app/requirements-app.txt
+RUN  pip install --no-cache-dir --upgrade --requirement /app/requirements.txt
 
 # Application code
 COPY    ./app /app
