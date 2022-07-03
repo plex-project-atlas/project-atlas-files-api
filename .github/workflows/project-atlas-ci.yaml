@@ -23,6 +23,9 @@ jobs:
       - name: Running unit tests...
         working-directory: ./app
         run:  pytest -v --basetemp /tmp/pytest
+        env:
+          FILES_API_PRIVATE_JWK: ${{ secrets.FILES_API_PRIVATE_JWK }}
+          FILES_API_PUBLIC_JWK:  ${{ secrets.FILES_API_PUBLIC_JWK }}
 
   docker-build-image-debian:
     name: Building docker image [debian]...
