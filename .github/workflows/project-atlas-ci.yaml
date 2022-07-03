@@ -49,8 +49,8 @@ jobs:
           no-cache: true
           file: builder/Dockerfile.debian
           tags: >
-            ${{ github.repository }}:devel
-          push: false
+            ${{ github.repository }}:devel-debian
+          push: true
 
   docker-build-image-alpine:
     name: Building/pushing docker image [alpine]...
@@ -70,5 +70,5 @@ jobs:
           no-cache: true
           file: builder/Dockerfile.alpine
           tags: >
-            ${{ github.repository }}:devel
-          push: false
+            ${{ github.repository }}:devel-alpine
+          push: true
