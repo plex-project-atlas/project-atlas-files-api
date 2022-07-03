@@ -52,26 +52,5 @@ jobs:
           no-cache: true
           file: builder/Dockerfile.${{ matrix.os }}
           tags: >
-            ${{ github.event.repo.name }}:${{ github.ref_name }}-${{ matrix.os }}
+            ${{ github.event.repository.name }}:${{ github.ref_name }}-${{ matrix.os }}
           push: true
-
-  # docker-build-image-alpine:
-  #   name: Building/pushing docker image [alpine]...
-  #   needs: python-code-check
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checking-out commit code...
-  #       uses: actions/checkout@v3
-  #     - name: Logging-in to DockerHub...
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
-  #     - name: Build and push
-  #       uses: docker/build-push-action@v3
-  #       with:
-  #         no-cache: true
-  #         file: builder/Dockerfile.alpine
-  #         tags: >
-  #           ${{ github.event.repo.name }}:${{ github.ref_name }}-alpine
-  #         push: true
