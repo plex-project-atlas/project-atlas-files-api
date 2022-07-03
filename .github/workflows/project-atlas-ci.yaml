@@ -26,6 +26,10 @@ jobs:
         env:
           FILES_API_PRIVATE_JWK: ${{ secrets.FILES_API_PRIVATE_JWK }}
           FILES_API_PUBLIC_JWK:  ${{ secrets.FILES_API_PUBLIC_JWK }}
+          FILES_API_ALLOWED_AUD: '["sample-platform"]'
+          FILES_API_ALLOWED_SUB: '["sample-id"]'
+          FILES_API_LIBRARY_DIR: "/tmp/pytest"
+          FILES_API_FILES_DIR:   "/tmp/pytest"
 
   docker-build-image-debian:
     name: Building docker image [debian]...
