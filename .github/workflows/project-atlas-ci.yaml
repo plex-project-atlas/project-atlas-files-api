@@ -6,7 +6,7 @@ permissions:
 
 jobs:
   python-code-check:
-    name:    Checking Python Code...
+    name:    Source code analysis...
     runs-on: ubuntu-latest
     steps:
       - name: Checking-out commit code...
@@ -28,7 +28,7 @@ jobs:
           pip install --no-cache-dir --upgrade -r builder/requirements-tests.txt
       - name: Running unit tests...
         working-directory: ./app
-        run:  pytest -v --basetemp /tmp/pytest --cov --cov-report xml
+        run:  pytest -v --basetemp /tmp/pytest --cov --cov-config ../.coveragerc --cov-report xml
         env:
           FILES_API_PRIVATE_JWK: ${{ secrets.FILES_API_PRIVATE_JWK }}
           FILES_API_PUBLIC_JWK:  ${{ secrets.FILES_API_PUBLIC_JWK }}
@@ -36,8 +36,12 @@ jobs:
           FILES_API_ALLOWED_SUB: '["sample-id"]'
           FILES_API_ARCHIVE_DIR: "/tmp/pytest"
           FILES_API_FILES_DIR:   "/tmp/pytest"
-      - name: SonarCloud Scan
+      - name: SonarCloud scan...
         uses: SonarSource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.organization=plex-project-atlas_project-atlas-files-api
+            -Dsonar.projectKey=project-atlas
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
