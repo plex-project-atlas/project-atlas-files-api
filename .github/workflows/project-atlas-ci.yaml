@@ -37,6 +37,7 @@ jobs:
           FILES_API_ARCHIVE_DIR: "/tmp/pytest"
           FILES_API_FILES_DIR:   "/tmp/pytest"
       - name: SonarCloud scan...
+        working-directory: ./app
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
