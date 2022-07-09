@@ -1,12 +1,18 @@
 name: project-atlas-ci
-on: [push]
+on:   [push]
+
+permissions:
+  pull-requests: read # allows SonarCloud to decorate PRs with analysis results
+
 jobs:
   python-code-check:
-    name: Checking Python Code...
+    name:    Checking Python Code...
     runs-on: ubuntu-latest
     steps:
       - name: Checking-out commit code...
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Installing OS prerequisites...
         run:  sudo apt-get update && sudo apt-get install -y --no-install-recommends libmagic1
       - name: Setting-up Python environment...
@@ -22,7 +28,7 @@ jobs:
           pip install --no-cache-dir --upgrade -r builder/requirements-tests.txt
       - name: Running unit tests...
         working-directory: ./app
-        run:  pytest -v --basetemp /tmp/pytest
+        run:  pytest -v --basetemp /tmp/pytest --cov --cov-report xml
         env:
           FILES_API_PRIVATE_JWK: ${{ secrets.FILES_API_PRIVATE_JWK }}
           FILES_API_PUBLIC_JWK:  ${{ secrets.FILES_API_PUBLIC_JWK }}
@@ -30,12 +36,18 @@ jobs:
           FILES_API_ALLOWED_SUB: '["sample-id"]'
           FILES_API_ARCHIVE_DIR: "/tmp/pytest"
           FILES_API_FILES_DIR:   "/tmp/pytest"
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
 
   docker-build-image:
-    name: Building/pushing docker image [${{ matrix.os }}]...
-    needs: python-code-check
+    name:    Building/pushing docker image [${{ matrix.os }}]...
+    needs:   python-code-check
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
       matrix:
         os: ['debian', 'alpine']
     steps:
