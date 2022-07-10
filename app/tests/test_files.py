@@ -7,6 +7,7 @@ from   libs.models        import FileList, RenameResponseList, MoveResponseList
 from   libs.utils         import ActionMessages
 from   datetime           import datetime
 from   pathlib            import Path
+from   urllib3.exceptions import InsecureRequestWarning
 from   starlette.status   import HTTP_200_OK
 
 
@@ -57,7 +58,10 @@ def create_dummy_files_structure(tmp_path_factory: pytest.TempPathFactory):
             tmp_path_factory.mktemp(basename = base_folder, numbered = False)
         Path(full_path).mkdir(parents = True, exist_ok = True)
 
-        download = requests.get(url = val["source"], timeout = 15)
+        # Suppress only the single warning from urllib3 needed.
+        requests.packages.urllib3.disable_warnings(category = InsecureRequestWarning)
+
+        download = requests.get(url = val["source"], timeout = 15, verify = False)
         assert download.status_code == HTTP_200_OK
         file     = os.path.normpath( os.path.join(
             full_path, f'{key}.{key.split("_")[-1]}'

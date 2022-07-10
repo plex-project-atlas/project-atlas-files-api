@@ -27,7 +27,6 @@ jobs:
           pip install --no-cache-dir --upgrade -r builder/requirements-api.txt
           pip install --no-cache-dir --upgrade -r builder/requirements-tests.txt
       - name: Running unit tests...
-        working-directory: ./app
         run:  pytest -v --basetemp /tmp/pytest --cov --cov-report xml
         env:
           FILES_API_PRIVATE_JWK: ${{ secrets.FILES_API_PRIVATE_JWK }}
