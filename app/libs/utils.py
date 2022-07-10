@@ -45,7 +45,7 @@ def get_file_hash(file: FilePath, block_size: int) -> str | None:
             while chunk := file.read(block_size):
                 file_hash.update(chunk)
         return file_hash.hexdigest()
-    except (FileNotFoundError, PermissionError) as e:
+    except (FileNotFoundError, PermissionError):
         return None
 
 def do_ops_preflight_checks(file: RenameRequest | MoveRequest, block_size: int) -> OpsPrefightCheckResult:

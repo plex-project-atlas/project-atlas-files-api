@@ -34,7 +34,7 @@ class FileClient:
             file_mime   = None
             try:
                 file_mime = magic.from_file(file, mime = True)
-            except PermissionError as e:
+            except PermissionError:
                 pass
 
             # Ref. https://support.plex.tv/articles/200471133-adding-local-subtitles-to-your-media/#toc-1

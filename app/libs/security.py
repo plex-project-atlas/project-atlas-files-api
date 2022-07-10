@@ -28,10 +28,10 @@ class JWTBearer(HTTPBearer):
         api_settings: Settings = get_api_settings()
         credentials:  HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
         if credentials:
-            if not credentials.scheme == "Bearer":
+            if credentials.scheme != "Bearer":
                 raise HTTPException(status_code = HTTP_401_UNAUTHORIZED, detail = AuthErrorMessages.HTTP_401_INVALID_SCHEME)
             try:
-                jwt_payload = jwt.decode(
+                jwt.decode(
                     jwt        = credentials.credentials,
                     key        = api_settings.public_jwk,
                     algorithms = ["EdDSA"], # Ed448 - 224 bit security
@@ -61,15 +61,15 @@ class JWTBearer(HTTPBearer):
                 jwt.exceptions.InvalidIssuedAtError, \
                 jwt.exceptions.ImmatureSignatureError, \
                 jwt.exceptions.MissingRequiredClaimError
-            ) as jwt_error:
+            ):
                 raise HTTPException(status_code = HTTP_401_UNAUTHORIZED, detail = AuthErrorMessages.HTTP_401_INVALID_TOKEN)
             return credentials.credentials
         else:
             raise HTTPException(status_code = HTTP_401_UNAUTHORIZED, detail = AuthErrorMessages.HTTP_401_INVALID_CREDENTIALS)
 
 def get_jwtoken( payload: TokenRequest, api_settings: Settings = get_api_settings() ) -> str:
-    if not (payload.source_platform in api_settings.allowed_aud) or \
-       not (payload.source_id in api_settings.allowed_sub):
+    if payload.source_platform not in api_settings.allowed_aud or \
+       payload.source_id       not in api_settings.allowed_sub:
         raise HTTPException(status_code = HTTP_403_FORBIDDEN, detail = AuthErrorMessages.HTTP_403_FORBIDDEN_SOURCE)
     try:
         utc_now = datetime.now(tz = timezone.utc)
