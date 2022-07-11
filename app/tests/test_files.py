@@ -72,7 +72,7 @@ def create_dummy_files_structure(tmp_path_factory: pytest.TempPathFactory):
 # -- /files/list --
 
 def test_get_list_no_subs_no_hash(create_dummy_files_structure):
-    response = client.get(url = ApiPaths.API_PATH_FILES_LIST,
+    response = client.get(url = ApiPaths.FILES_LIST,
         headers = api_headers,
         params  = {
             "subtitles": False,
