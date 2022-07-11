@@ -1,11 +1,11 @@
-from test_main        import client, api_headers
+from test_main        import ApiPaths, client, api_headers
 from starlette.status import HTTP_201_CREATED, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 
 ## -- Test functions --
 
 def test_get_token_wrong_all():
-    response = client.post(url = '/token',
+    response = client.post(url = ApiPaths.TOKEN,
         headers = api_headers,
         json    = {
             "source_platform": "wrong-platform",
@@ -14,7 +14,7 @@ def test_get_token_wrong_all():
     assert response.status_code == HTTP_403_FORBIDDEN
 
 def test_get_token_wrong_aud():
-    response = client.post(url = '/token',
+    response = client.post(url = ApiPaths.TOKEN,
         headers = api_headers,
         json    = {
             "source_platform": "wrong-platform",
@@ -23,7 +23,7 @@ def test_get_token_wrong_aud():
     assert response.status_code == HTTP_403_FORBIDDEN
 
 def test_get_token_wrong_sub():
-    response = client.post(url = '/token',
+    response = client.post(url = ApiPaths.TOKEN,
         headers = api_headers,
         json    = {
             "source_platform": "sample-platform",
@@ -34,7 +34,7 @@ def test_get_token_wrong_sub():
 # -- Test invalid auth
 
 def test_get_list_no_auth():
-    response = client.get(url = '/files/list',
+    response = client.get(url = ApiPaths.FILES_LIST,
         headers = api_headers,
         params  = {
             "subtitles": False,
@@ -43,7 +43,7 @@ def test_get_list_no_auth():
     assert response.status_code == HTTP_403_FORBIDDEN
 
 def test_get_list_wrong_auth():
-    response = client.get(url = '/files/list',
+    response = client.get(url = ApiPaths.FILES_LIST,
         headers = api_headers | {
             "Authorization": "sample-token"
         },
@@ -54,7 +54,7 @@ def test_get_list_wrong_auth():
     assert response.status_code == HTTP_403_FORBIDDEN
 
 def test_get_list_wrong_token():
-    response = client.get(url = '/files/list',
+    response = client.get(url = ApiPaths.FILES_LIST,
         headers = api_headers | {
             "Authorization": "Bearer sample-token"
         },
@@ -67,7 +67,7 @@ def test_get_list_wrong_token():
 # -- Get the correct API Token
 
 def test_get_token_correct():
-    response = client.post(url = '/token',
+    response = client.post(url = ApiPaths.TOKEN,
         headers = api_headers,
         json    = {
             "source_platform": "sample-platform",

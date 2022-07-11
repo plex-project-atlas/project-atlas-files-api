@@ -19,14 +19,14 @@ class ActionMessages(str, Enum):
     ERROR_DATE_MISMATCH = 'Current file modification date does not match the provided one'
 
 class Settings(BaseSettings):
-    block_size:   ByteSize      = '128 MiB'
-    files_dir:    DirectoryPath = '/files'
-    archive_dir:  DirectoryPath = '/archive'
-    allowed_aud:  List[str]     = None
-    allowed_sub:  List[str]     = None
-    private_jwk:  str           = None
-    public_jwk:   str           = None
-    thread_count: int           = os.cpu_count()
+    block_size:   ByteSize         = '128 MiB'
+    files_dir:    DirectoryPath    = '/files'
+    archive_dir:  DirectoryPath    = '/archive'
+    allowed_aud:  List[str] | None = None
+    allowed_sub:  List[str] | None = None
+    private_jwk:  str       | None = None
+    public_jwk:   str       | None = None
+    thread_count: int              = os.cpu_count()
 
     class Config:
         env_prefix     = "FILES_API_"

@@ -1,8 +1,16 @@
 import pytest
 
+from   enum               import Enum
 from   main               import app
 from   fastapi.testclient import TestClient
 from   libs.files         import FileClient, get_api_settings
+
+
+class ApiPaths(str, Enum):
+    TOKEN        = "/token"
+    FILES_LIST   = "/files/list"
+    FILES_RENAME = "/files/rename"
+    FILES_MOVE   = "/files/move"
 
 client       = TestClient(app)
 api_headers  = {

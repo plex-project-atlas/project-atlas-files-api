@@ -67,7 +67,7 @@ class JWTBearer(HTTPBearer):
         else:
             raise HTTPException(status_code = HTTP_401_UNAUTHORIZED, detail = AuthErrorMessages.HTTP_401_INVALID_CREDENTIALS)
 
-def get_jwtoken( payload: TokenRequest, api_settings: Settings = get_api_settings() ) -> str:
+def get_jwtoken( payload: TokenRequest, api_settings: Settings = get_api_settings() ) -> dict[str, str]:
     if payload.source_platform not in api_settings.allowed_aud or \
        payload.source_id       not in api_settings.allowed_sub:
         raise HTTPException(status_code = HTTP_403_FORBIDDEN, detail = AuthErrorMessages.HTTP_403_FORBIDDEN_SOURCE)

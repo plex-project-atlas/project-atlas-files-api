@@ -2,7 +2,7 @@ import os
 import pytest
 import requests
 
-from   test_main          import client, api_headers
+from   test_main          import ApiPaths, client, api_headers
 from   libs.models        import FileList, RenameResponseList, MoveResponseList
 from   libs.utils         import ActionMessages
 from   datetime           import datetime
@@ -72,7 +72,7 @@ def create_dummy_files_structure(tmp_path_factory: pytest.TempPathFactory):
 # -- /files/list --
 
 def test_get_list_no_subs_no_hash(create_dummy_files_structure):
-    response = client.get(url = '/files/list',
+    response = client.get(url = ApiPaths.API_PATH_FILES_LIST,
         headers = api_headers,
         params  = {
             "subtitles": False,
@@ -96,7 +96,7 @@ def test_get_list_no_subs_no_hash(create_dummy_files_structure):
     assert not hash_found
 
 def test_get_list_with_subs_and_hashes(create_dummy_files_structure):
-    response = client.get(url = '/files/list',
+    response = client.get(url = ApiPaths.FILES_LIST,
         headers = api_headers,
         params  = {
             "subtitles": True,
@@ -121,14 +121,14 @@ def test_get_list_with_subs_and_hashes(create_dummy_files_structure):
 # -- /files/rename --
 
 def test_do_rename_wrong_name(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/rename',
+    response = client.patch(url = ApiPaths.FILES_RENAME,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_3gp.3gp",
+                    "name":     f"{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}",
                     "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
-                    "new_name": "sample_3gp.3gp"
+                    "new_name": f"{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}"
                 }
             ]
         }
@@ -141,15 +141,15 @@ def test_do_rename_wrong_name(tmp_path_factory: pytest.TempPathFactory, create_d
     assert response["files"][0]["detail"] == ActionMessages.ERROR_SAME_NAME
 
 def test_do_rename_wrong_size(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/rename',
+    response = client.patch(url = ApiPaths.FILES_RENAME,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_3gp.3gp",
+                    "name":     f"{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}",
                     "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
                     "size":     8,
-                    "new_name": "new_sample.3gp"
+                    "new_name": f"new_{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}"
                 }
             ]
         }
@@ -162,15 +162,15 @@ def test_do_rename_wrong_size(tmp_path_factory: pytest.TempPathFactory, create_d
     assert ActionMessages.ERROR_SIZE_MISMATCH in response["files"][0]["detail"]
 
 def test_do_rename_wrong_hash(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/rename',
+    response = client.patch(url = ApiPaths.FILES_RENAME,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_3gp.3gp",
+                    "name":     f"{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}",
                     "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
                     "hash":     "my_wrong_hash",
-                    "new_name": "new_sample.3gp"
+                    "new_name": f"new_{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}"
                 }
             ]
         }
@@ -183,15 +183,15 @@ def test_do_rename_wrong_hash(tmp_path_factory: pytest.TempPathFactory, create_d
     assert response["files"][0]["detail"] == ActionMessages.ERROR_HASH_MISMATCH
 
 def test_do_rename_wrong_date(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/rename',
+    response = client.patch(url = ApiPaths.FILES_RENAME,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_3gp.3gp",
+                    "name":     f"{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}",
                     "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
                     "mod_date": datetime.now().isoformat(),
-                    "new_name": "new_sample.3gp"
+                    "new_name": f"new_{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}"
                 }
             ]
         }
@@ -204,14 +204,14 @@ def test_do_rename_wrong_date(tmp_path_factory: pytest.TempPathFactory, create_d
     assert ActionMessages.ERROR_DATE_MISMATCH in response["files"][0]["detail"]
 
 def test_do_rename_correct(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/rename',
+    response = client.patch(url = ApiPaths.FILES_RENAME,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_3gp.3gp",
+                    "name":     f"{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}",
                     "path":     os.path.normpath( tmp_path_factory.getbasetemp() ),
-                    "new_name": "new_sample.3gp"
+                    "new_name": f"new_{list( sample_files.keys() )[0]}.{list( sample_files.keys() )[0].split('_')[-1]}"
                 }
             ]
         }
@@ -225,12 +225,12 @@ def test_do_rename_correct(tmp_path_factory: pytest.TempPathFactory, create_dumm
 # -- /files/move --
 
 def test_do_move_wrong_path(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/move',
+    response = client.patch(url = ApiPaths.FILES_MOVE,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_mkv.mkv",
+                    "name":     f"{list( sample_files.keys() )[-1]}.{list( sample_files.keys() )[-1].split('_')[-1]}",
                     "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
                     "new_path": f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1"
                 }
@@ -245,12 +245,12 @@ def test_do_move_wrong_path(tmp_path_factory: pytest.TempPathFactory, create_dum
     assert response["files"][0]["detail"] == ActionMessages.ERROR_SAME_PATH
 
 def test_do_move_wrong_size(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/move',
+    response = client.patch(url = ApiPaths.FILES_MOVE,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_mkv.mkv",
+                    "name":     f"{list( sample_files.keys() )[-1]}.{list( sample_files.keys() )[-1].split('_')[-1]}",
                     "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
                     "size":     8,
                     "new_path": os.path.normpath( tmp_path_factory.getbasetemp() )
@@ -266,12 +266,12 @@ def test_do_move_wrong_size(tmp_path_factory: pytest.TempPathFactory, create_dum
     assert ActionMessages.ERROR_SIZE_MISMATCH in response["files"][0]["detail"]
 
 def test_do_move_wrong_hash(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/move',
+    response = client.patch(url = ApiPaths.FILES_MOVE,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_mkv.mkv",
+                    "name":     f"{list( sample_files.keys() )[-1]}.{list( sample_files.keys() )[-1].split('_')[-1]}",
                     "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
                     "hash":     "my_wrong_hash",
                     "new_path": os.path.normpath( tmp_path_factory.getbasetemp() )
@@ -287,12 +287,12 @@ def test_do_move_wrong_hash(tmp_path_factory: pytest.TempPathFactory, create_dum
     assert response["files"][0]["detail"] == ActionMessages.ERROR_HASH_MISMATCH
 
 def test_do_move_wrong_date(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/move',
+    response = client.patch(url = ApiPaths.FILES_MOVE,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_mkv.mkv",
+                    "name":     f"{list( sample_files.keys() )[-1]}.{list( sample_files.keys() )[-1].split('_')[-1]}",
                     "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
                     "mod_date": datetime.now().isoformat(),
                     "new_path": os.path.normpath( tmp_path_factory.getbasetemp() )
@@ -308,12 +308,12 @@ def test_do_move_wrong_date(tmp_path_factory: pytest.TempPathFactory, create_dum
     assert ActionMessages.ERROR_DATE_MISMATCH in response["files"][0]["detail"]
 
 def test_do_move_correct(tmp_path_factory: pytest.TempPathFactory, create_dummy_files_structure):
-    response = client.patch(url = '/files/move',
+    response = client.patch(url = ApiPaths.FILES_MOVE,
         headers = api_headers,
         json    = {
             "files": [
                 {
-                    "name":     "sample_mkv.mkv",
+                    "name":     f"{list( sample_files.keys() )[-1]}.{list( sample_files.keys() )[-1].split('_')[-1]}",
                     "path":     f"{os.path.normpath( tmp_path_factory.getbasetemp() )}/sample-dir1/sample-subdir1",
                     "new_path": os.path.normpath( tmp_path_factory.getbasetemp() )
                 }
